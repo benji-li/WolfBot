@@ -1,5 +1,0 @@
-{
-	"prefix": "!",
-    "token": "TOKEN-ID-HERE",
-    "all_roles": ["werewolf","minion","seer","robber","troublemaker","drunk","hunter","insomniac","tanner","villager","mason"]
-}
