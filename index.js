@@ -41,52 +41,6 @@ client.on('message', message => {
     }
 
     /*
-    if (message.content.startsWith(`${prefix}ping`)) {
-        message.channel.send('Pong');
-    }
-    else if (message.content.startsWith(`${prefix}beep`)) {
-        message.channel.send('Boop')
-    }
-    else if (message.content.startsWith(`${prefix}server`)) {
-        message.channel.send(`This server's name is: ${message.guild.name} \nTotal members: ${message.guild.memberCount}`);
-    }
-    else if (message.content === `${prefix}user-info`) {
-        message.channel.send(`Your username: ${message.author.username}\nYour ID: ${message.author.id}`);
-    }
-    else if (command === 'args-info') {
-        if (!args.length) {
-            return message.channel.send(`You didn't provide any arguments, ${message.author}`);
-        }
-        else if (args[0] === 'users') {
-            return message.channel.send(message.mentions.users.size);
-        }
-        else if (args[0] ==='foo') {
-            return message.channel.send('bar');
-        }
-        message.channel.send(`First argument: ${args[0]}`);
-        message.channel.send(`Command name: ${command}\nArguments: ${args}`);
-    }
-    else if (command === 'join') {
-        if (isGame) {
-            message.author.send(`Welcome to the game!`);
-            return message.channel.send(`${message.author.username} has joined the game!`);
-        }
-        return message.channel.send(`No game to join!`);
-    }
-    else if (command === 'play') {
-        if (!isGame) {
-            isGame = true;
-            return message.channel.send(`Game has been created! \n!join and then !ready to begin!`);
-        }
-        return message.channel.send(`Game already in progress!`);
-    }
-    else if (command === 'end') {
-        if (isGame) {
-            isGame = false;
-            return message.channel.send(`Game has been stopped!`);
-        }
-        return message.channel.send('No game in progress!');
-    }
     else if (command === 'vote') { 
         let channel = message.channel.id;
         message.channel.send(String(channel));
