@@ -1,3 +1,4 @@
+const settings = require('../settings');
 const gs = require('./play');
 module.exports = {
 	name: 'end',
@@ -5,7 +6,7 @@ module.exports = {
 
 	execute(message) {
         if (gs.isGame === true) {
-            message.channel.send(`Game hosted by ${gs.owner} has ended`);
+            message.channel.send(`Game hosted by ${settings.host} has ended`);
             gs.isGame = false;
         }
         else {

@@ -3,7 +3,6 @@ module.exports = {
 	name: 'ready',
     description: 'lets player ready up',
     readied: [],
-    gameStart: false,
 	execute(message) {
         if (settings.players.includes(message.author.id) && message.author.id in this.readied === false) {
             this.readied.push(message.author.id);
@@ -14,7 +13,7 @@ module.exports = {
         }
         if (settings.players.length === this.readied.length ) {
             message.channel.send('Game is starting...');
-            this.gameStart = true;
+            settings.insesh = true;
         }
     },
 };
