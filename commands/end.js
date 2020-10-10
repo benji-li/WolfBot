@@ -1,13 +1,16 @@
-const { Channel } = require("discord.js");
-
-var gs = require('./play');
+const gs = require('./play');
 module.exports = {
 	name: 'end',
     description: 'ends an existing game',
 
 	execute(message) {
-        message.channel.send(`Game hosted by ${gs.owner} has ended`);
-        gs.isGame = false;
+        if (gs.isGame === true) {
+            message.channel.send(`Game hosted by ${gs.owner} has ended`);
+            gs.isGame = false;
+        }
+        else {
+            message.channel.send(`No game to end!`);
+        }
         /*
         if (message.author.username === gs.owner) {
             message.channel.send(`Game hosted by ${gs.owner} has ended`);

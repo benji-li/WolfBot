@@ -1,6 +1,7 @@
 const fs = require('fs');
 const Discord = require('discord.js');
-const { prefix, token, all_roles } = require('./config.json');
+const {prefix, token} = require('./config.json');
+const settings = require('./settings');
 const client = new Discord.Client();
 
 client.commands = new Discord.Collection();
@@ -27,17 +28,18 @@ client.on('message', message => {
     var gameStatus = client.commands.get('play').isGame;
 
     try {
-        if (commandName === 'play') { //make sure play is the first command given
-            command.execute(message,args);
+        if (gameStatus === false && commandName != 'play') {
+            message.channel.send('Please use !play to create a lobby first!');
         }
-        else if (gameStatus) {
-            command.execute(message,args);
+        else {
+            command.execute(message, args);
         }
     }
     catch (error){
         console.error(error);
         message.reply('There was an error trying to execute that command');
     }
+
     /*
     if (message.content.startsWith(`${prefix}ping`)) {
         message.channel.send('Pong');
