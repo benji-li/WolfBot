@@ -63,6 +63,10 @@ function gameLoop(channel) {
         console.log(role);
         client.users.cache.get(player_id).send(`hey buddy! Your role is ${role}`);
     }
+
+    /* send those good good dms to each role w/ instructions */
+    /* figure out that timer */
+    /* voting phase */
 }
 
 function assignRoles(players,roles) {
