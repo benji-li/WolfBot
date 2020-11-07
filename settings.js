@@ -5,5 +5,6 @@ module.exports = {
     players: [],
     roles: [],
     assigns: new Map(),
+    middle: [],
     time: 420,
 };

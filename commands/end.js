@@ -6,7 +6,7 @@ module.exports = {
 
 	execute(message) {
         if (gs.isGame === true) {
-            message.channel.send(`Game hosted by ${settings.host} has ended`);
+            message.channel.send(`Game hosted by ${settings.host.username} has ended`);
             gs.isGame = false;
         }
         else {

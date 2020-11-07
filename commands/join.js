@@ -5,7 +5,7 @@ module.exports = {
 	execute(message) {
         if (settings.players.includes(message.author.id) == false) {
             settings.players.push(message.author.id);
-            message.channel.send(`@${message.author.username} has joined the game! ${settings.players.length} players joined!`);
+            message.channel.send(`@${message.author.username} has joined the game! ${settings.players.length} players in the game!`);
             message.author.send(`Welcome to the game!`);
         }
         else {

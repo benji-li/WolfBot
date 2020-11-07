@@ -39,15 +39,43 @@ client.on('message', message => {
         console.error(error);
         message.reply('There was an error trying to execute that command');
     }
-
+    if (settings.insesh === true) {
+        message.channel.send("woah1111");
+        gameLoop(message.channel.id);
+    }
     /*
-    else if (command === 'vote') { 
+    if (command === 'vote') { 
         let channel = message.channel.id;
+        console.log("beep beep")
         message.channel.send(String(channel));
         return client.channels.cache.get("761749745060151318").send('hello');
-    }
-    */
+    }*/
+    
 });
 
 
 client.login(token);
+
+function gameLoop(channel) {
+    assignRoles(settings.players,settings.roles)
+    for (const [player_id, role] of settings.assigns.entries()) {
+        console.log(player_id);
+        console.log(role);
+        client.users.cache.get(player_id).send(`hey buddy! Your role is ${role}`);
+    }
+}
+
+function assignRoles(players,roles) {
+    roles.sort(() => Math.random() - 0.5);
+    let rolemap = new Map()
+    for (let i=0; i<players.length;i++) {
+        rolemap.set(players[i],roles[i]);
+    }
+    settings.middle = roles.slice(-3,-1);
+    settings.assigns = rolemap;
+
+    console.log(roles);
+    console.log(players);
+    console.log(settings.assigns);
+    console.log(settings.middle);
+}

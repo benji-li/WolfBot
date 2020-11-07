@@ -1,3 +1,4 @@
+/* NO LONGER NEEDED */
 const settings = require('../settings');
 module.exports = {
 	name: 'ready',
@@ -6,7 +7,7 @@ module.exports = {
 	execute(message) {
         if (settings.players.includes(message.author.id) && message.author.id in this.readied === false) {
             this.readied.push(message.author.id);
-            message.channel.send(`${message.author.id} is ready! ${this.readied.length}/${settings.players.length} readied!`);
+            message.channel.send(`${message.author.username} is ready! ${this.readied.length}/${settings.players.length} readied!`);
         }
         else {
             message.reply('please join a game before readying');
