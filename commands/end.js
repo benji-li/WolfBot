@@ -8,6 +8,7 @@ module.exports = {
         if (gs.isGame === true) {
             message.channel.send(`Game hosted by ${settings.host.username} has ended`);
             gs.isGame = false;
+            settings.players=[];
         }
         else {
             message.channel.send(`No game to end!`);

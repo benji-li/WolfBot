@@ -17,7 +17,7 @@ client.once('ready', () => {
 });
 
 client.on('message', message => {
-    if (!message.content.startsWith(prefix) || message.author.bot) return; //return if message empty or sent by bot
+    if (!message.content.startsWith(prefix) || message.author.bot) return; //return if message doesn't start with prefix or sent by bot
 
     const args = message.content.slice(prefix.length).trim().split(/ +/); //splits command ignoring multiple spaces in a row
     const commandName = args.shift().toLowerCase(); // shift adds index 0, deletes from other array
@@ -63,7 +63,7 @@ function gameLoop(channel) {
         console.log(role);
         client.users.cache.get(player_id).send(`hey buddy! Your role is ${role}`);
     }
-
+    sendDms(settings.assigns,settings.middle);
     /* send those good good dms to each role w/ instructions */
     /* figure out that timer */
     /* voting phase */
@@ -82,4 +82,29 @@ function assignRoles(players,roles) {
     console.log(players);
     console.log(settings.assigns);
     console.log(settings.middle);
+}
+
+function sendDms(assignmap,mid) {
+    for (const [player, role] of assignmap.entries()) {
+        console.log(player, role);
+        client.users.cache.get(player).send(`:regional_indicator_a: ${settings.players}`);
+        client.users.cache.get(player).send(settings.alerts.get(role));
+        client.users.cache.get(player).send(`:regional_indicator_a: ${settings.players}`)
+        .then(async function (botmessage) {
+            await botmessage.react('✅')
+            const filter = (reaction, user) => {
+                return reaction.emoji.name==='✅' && user.id ===player;
+            };
+            const collector = botmessage.createReactionCollector(filter, { time: 15000 });
+    
+            collector.on('collect', (reaction, user) => {
+                console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
+                //do stuff
+            });
+              
+            collector.on('end', collected => {
+                console.log(`Collected ${collected.size} items`);
+            });
+        });
+    }
 }
