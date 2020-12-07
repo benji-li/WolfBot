@@ -17,4 +17,6 @@ module.exports = {
                     ["insomniac","Your role at the end of the night is: "],
                     ["mason","The masons are: "]
             ]),
+    emoji_letters: [],
+    emoji_middle: ['⬅️','⬆️','➡️'],
 };

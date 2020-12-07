@@ -75,7 +75,7 @@ function assignRoles(players,roles) {
     for (let i=0; i<players.length;i++) {
         rolemap.set(players[i],roles[i]);
     }
-    settings.middle = roles.slice(-3,-1);
+    settings.middle = roles.slice(-3);
     settings.assigns = rolemap;
 
     console.log(roles);
@@ -86,12 +86,20 @@ function assignRoles(players,roles) {
 
 function sendDms(assignmap,mid) {
     for (const [player, role] of assignmap.entries()) {
-        console.log(player, role);
+        console.log(client.users.cache.get(player).username, role);
+        if (role == "werewolf") {
+            werewolf(player,assignmap,mid);
+        }
+        else if (role == "minion") {
+            minion(player,assignmap);
+        }
+    /* 
         client.users.cache.get(player).send(`:regional_indicator_a: ${settings.players}`);
         client.users.cache.get(player).send(settings.alerts.get(role));
         client.users.cache.get(player).send(`:regional_indicator_a: ${settings.players}`)
         .then(async function (botmessage) {
-            await botmessage.react('✅')
+            botmessage.react('✅');
+            botmessage.react('🇧');
             const filter = (reaction, user) => {
                 return reaction.emoji.name==='✅' && user.id ===player;
             };
@@ -106,5 +114,62 @@ function sendDms(assignmap,mid) {
                 console.log(`Collected ${collected.size} items`);
             });
         });
+        */
     }
+}
+
+// Dm's for each role -- splitting them up b/c easier although longer
+
+
+function werewolf(recep, assignmap,mid) {
+    var wolfcount = 0;
+    for (const [player,role] of assignmap.entries()) {
+        client.users.cache.get(recep).send("The Werewolves are...");
+        if (role == "werewolf") {
+            client.users.cache.get(recep).send(client.users.cache.get(player).username);
+            wolfcount++;
+        }
+    }
+    if (wolfcount == 1) {
+        client.users.cache.get(recep).send("Looks like you're the only wolf!");
+        for (let i = 0; i<mid.length; i++) {
+            client.users.cache.get(recep).send(`${settings.emoji_middle[i]} ${mid[i]}`);
+        }
+        client.users.cache.get(recep).send("Choose one card to view!")
+        .then(async function (botmessage) {
+            for (emoj in settings.emoji_middle) {
+                botmessage.react(settings.emoji_middle[emoj]);
+            }
+            const filter = (reaction, user) => {
+                return settings.emoji_middle.includes(reaction.emoji.name) && user.id ===recep;
+            };
+            const collector = botmessage.createReactionCollector(filter, { time: 30000 });
+    
+            collector.on('collect', (reaction, user) => {
+                console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
+                client.users.cache.get(recep).send(`The ${reaction.emoji.name} card is ${mid[settings.emoji_middle.indexOf(reaction.emoji.name)]}`);
+            });
+              
+            collector.on('end', collected => {
+                console.log(`Collected ${collected.size} items`);
+            });
+        });
+    }
+    return ('werewolf task completed');
+
+}
+
+function minion(recep, assignmap) {
+    var wcount=0;
+    for (const [player,role] of assignmap.entries()) {
+        client.users.cache.get(recep).send("The Werewolves are...");
+        if (role == "werewolf") {
+            client.users.cache.get(recep).send(client.users.cache.get(player).username);
+            wcount++;
+        }
+    }
+    if (wcount==0) {
+        client.users.cache.get(recep).send("Looks like there aren't any werewolves :(");
+    }
+    return ('minion task completed');
 }
