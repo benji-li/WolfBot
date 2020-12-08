@@ -57,13 +57,9 @@ client.on('message', message => {
 client.login(token);
 
 function gameLoop(channel) {
-    assignRoles(settings.players,settings.roles)
-    for (const [player_id, role] of settings.assigns.entries()) {
-        console.log(player_id);
-        console.log(role);
-        client.users.cache.get(player_id).send(`hey buddy! Your role is ${role}`);
-    }
-    sendDms(settings.assigns,settings.middle);
+    assignRoles(settings.players,settings.roles);
+    setTimeout(sendDms,3000,settings.assigns,settings.middle);
+
     /* send those good good dms to each role w/ instructions */
     /* figure out that timer */
     /* voting phase */
@@ -82,6 +78,10 @@ function assignRoles(players,roles) {
     console.log(players);
     console.log(settings.assigns);
     console.log(settings.middle);
+
+    for (const [player_id, role] of settings.assigns.entries()) {
+        client.users.cache.get(player_id).send(`hey buddy! Your role is ${role}`);
+    }
 }
 
 function sendDms(assignmap,mid) {
@@ -114,6 +114,10 @@ function sendDms(assignmap,mid) {
                 console.log(`Collected ${collected.size} items`);
             });
         });
+        // sending mid cards (repurp for players later)
+        for (let i = 0; i<mid.length; i++) {
+            client.users.cache.get(recep).send(`${settings.emoji_middle[i]} ${mid[i]}`);
+        }
         */
     }
 }
@@ -123,19 +127,16 @@ function sendDms(assignmap,mid) {
 
 function werewolf(recep, assignmap,mid) {
     var wolfcount = 0;
+    var msg = "The Werewolves are: ";
     for (const [player,role] of assignmap.entries()) {
-        client.users.cache.get(recep).send("The Werewolves are...");
         if (role == "werewolf") {
-            client.users.cache.get(recep).send(client.users.cache.get(player).username);
+            msg += client.users.cache.get(player).username;
             wolfcount++;
         }
     }
+    client.users.cache.get(recep).send(msg);
     if (wolfcount == 1) {
-        client.users.cache.get(recep).send("Looks like you're the only wolf!");
-        for (let i = 0; i<mid.length; i++) {
-            client.users.cache.get(recep).send(`${settings.emoji_middle[i]} ${mid[i]}`);
-        }
-        client.users.cache.get(recep).send("Choose one card to view!")
+        client.users.cache.get(recep).send("Looks like you're the only wolf, choose a center card to view!")
         .then(async function (botmessage) {
             for (emoj in settings.emoji_middle) {
                 botmessage.react(settings.emoji_middle[emoj]);
@@ -143,20 +144,21 @@ function werewolf(recep, assignmap,mid) {
             const filter = (reaction, user) => {
                 return settings.emoji_middle.includes(reaction.emoji.name) && user.id ===recep;
             };
-            const collector = botmessage.createReactionCollector(filter, { time: 30000 });
+            const collector = botmessage.createReactionCollector(filter, {max:1, time: 120000});
     
             collector.on('collect', (reaction, user) => {
                 console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
-                client.users.cache.get(recep).send(`The ${reaction.emoji.name} card is ${mid[settings.emoji_middle.indexOf(reaction.emoji.name)]}`);
+                client.users.cache.get(recep).send(`The ${reaction.emoji.name} card is a ${mid[settings.emoji_middle.indexOf(reaction.emoji.name)]}`);
             });
               
             collector.on('end', collected => {
-                console.log(`Collected ${collected.size} items`);
+                console.log('Lone wolf task completed');
+                return;
             });
         });
     }
-    return ('werewolf task completed');
-
+    console.log('werewolf task completed');
+    return;
 }
 
 function minion(recep, assignmap) {
@@ -171,5 +173,6 @@ function minion(recep, assignmap) {
     if (wcount==0) {
         client.users.cache.get(recep).send("Looks like there aren't any werewolves :(");
     }
-    return ('minion task completed');
+    console.log('minion task completed');
+    return;
 }
