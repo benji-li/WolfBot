@@ -1,3 +1,4 @@
+const { middle } = require('../settings');
 const settings = require('../settings');
 const gs = require('./play');
 module.exports = {
@@ -8,7 +9,11 @@ module.exports = {
         if (gs.isGame === true) {
             message.channel.send(`Game has ended`);
             gs.isGame = false;
+            settings.insesh = false;
             settings.players=[];
+            settings.roles=[];
+            settings.assigns.clear();
+            settings.middle=[];
         }
         else {
             message.channel.send(`No game to end!`);
