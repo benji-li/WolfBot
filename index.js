@@ -2,6 +2,7 @@ const fs = require('fs');
 const Discord = require('discord.js');
 const {prefix, token} = require('./config.json');
 const settings = require('./settings');
+const { Server } = require('http');
 const client = new Discord.Client();
 
 client.commands = new Discord.Collection();
@@ -93,6 +94,9 @@ function sendDms(assignmap,mid) {
         else if (role == "minion") {
             minion(player,assignmap);
         }
+        else if (role == "seer") {
+            seer(player,assignmap,mid);
+        }
     /* 
         client.users.cache.get(player).send(`:regional_indicator_a: ${settings.players}`);
         client.users.cache.get(player).send(settings.alerts.get(role));
@@ -125,7 +129,7 @@ function sendDms(assignmap,mid) {
 // Dm's for each role -- splitting them up b/c easier although longer
 
 
-function werewolf(recep, assignmap,mid) {
+function werewolf(recep,assignmap,mid) {
     var wolfcount = 0;
     var msg = "The Werewolves are: ";
     for (const [player,role] of assignmap.entries()) {
@@ -136,7 +140,7 @@ function werewolf(recep, assignmap,mid) {
     }
     client.users.cache.get(recep).send(msg);
     if (wolfcount == 1) {
-        client.users.cache.get(recep).send("Looks like you're the only wolf, choose a center card to view!")
+        client.users.cache.get(recep).send("Looks like you're the only wolf, choose a center role to view!")
         .then(async function (botmessage) {
             for (emoj in settings.emoji_middle) {
                 botmessage.react(settings.emoji_middle[emoj]);
@@ -148,7 +152,7 @@ function werewolf(recep, assignmap,mid) {
     
             collector.on('collect', (reaction, user) => {
                 console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
-                client.users.cache.get(recep).send(`The ${reaction.emoji.name} card is a ${mid[settings.emoji_middle.indexOf(reaction.emoji.name)]}`);
+                client.users.cache.get(recep).send(`The ${reaction.emoji.name} role is a ${mid[settings.emoji_middle.indexOf(reaction.emoji.name)]}`);
             });
               
             collector.on('end', collected => {
@@ -163,16 +167,70 @@ function werewolf(recep, assignmap,mid) {
 
 function minion(recep, assignmap) {
     var wcount=0;
+    msg = "The Werewolves are: ";
     for (const [player,role] of assignmap.entries()) {
-        client.users.cache.get(recep).send("The Werewolves are...");
         if (role == "werewolf") {
-            client.users.cache.get(recep).send(client.users.cache.get(player).username);
+            msg += client.users.cache.get(player).username;
             wcount++;
         }
     }
     if (wcount==0) {
         client.users.cache.get(recep).send("Looks like there aren't any werewolves :(");
     }
+    else {
+        client.users.cache.get(recep).send(msg);
+    }
     console.log('minion task completed');
+    return;
+}
+
+function seer(recep,assignmap,mid) {
+    var i=0;
+    var msg=``;
+    for (const [player,role] of assignmap.entries()) {
+        msg+=`${settings.emoji_letters[i]} ${client.users.cache.get(player).username} \n`;
+        i++;
+    }
+    client.users.cache.get(recep).send(msg);
+
+    var porm = 0; //1 = viewing mid - prevent viewing a mid then a player
+
+    client.users.cache.get(recep).send("View 1 player's role OR View 2 center roles")
+    .then(async function (botmessage) {
+        for (var a=0;a<i;a++) {
+            botmessage.react(settings.emoji_letters[a]);
+        }
+        for (emoj in settings.emoji_middle) {
+            botmessage.react(settings.emoji_middle[emoj]);
+        }
+        const filter = (reaction, user) => {
+            return (settings.emoji_letters.includes(reaction.emoji.name) || settings.emoji_middle.includes(reaction.emoji.name)) && user.id ===recep;
+        };
+        const collector = botmessage.createReactionCollector(filter, {time: 120000});
+
+        collector.on('collect', (reaction, user) => {
+            console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
+            if (settings.emoji_letters.includes(reaction.emoji.name) && porm===0) {
+                //THIS MIGHT BE SUBJECT TO ERROR
+                const pref=settings.players[settings.emoji_letters.indexOf(reaction.emoji.name)];
+
+                client.users.cache.get(recep).send(`${client.users.cache.get(pref).username}'s role is ${assignmap.get(pref)}`);
+                collector.stop();
+            }
+            else if(settings.emoji_middle.includes(reaction.emoji.name)) {
+                client.users.cache.get(recep).send(`The ${reaction.emoji.name} role is a ${mid[settings.emoji_middle.indexOf(reaction.emoji.name)]}`);
+                if (porm===1) {
+                    collector.stop(); //after second role view
+                }
+                porm=1;
+            }
+
+        });
+          
+        collector.on('end', collected => {
+            console.log('Seer task completed');
+            return;
+        });
+    });
     return;
 }
