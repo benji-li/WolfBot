@@ -41,7 +41,6 @@ client.on('message', message => {
         message.reply('There was an error trying to execute that command');
     }
     if (settings.insesh === true) {
-        message.channel.send("woah1111");
         gameLoop(message.channel.id);
     }
     /*
@@ -57,15 +56,29 @@ client.on('message', message => {
 
 client.login(token);
 
+// this needs to reach 0 before game can proceed
+var actionsleft=0;
+
 function gameLoop(channel) {
     assignRoles(settings.players,settings.roles);
-    setTimeout(sendDms,3000,settings.assigns,settings.middle);
+    sendDms(settings.assigns,settings.middle);
+
+    interval = setInterval(()=>actionsComped(actionsleft),1000);
+
+    //setTimeout(sendDms,5000,settings.assigns,settings.middle);
 
     /* send those good good dms to each role w/ instructions */
     /* figure out that timer */
     /* voting phase */
 }
 
+function actionsComped(actionsleft) {
+    if (actionsleft==0) {
+        clearInterval(interval);
+        console.log("yep cleared");
+        console.log(settings.swaps);
+    }
+}
 function assignRoles(players,roles) {
     roles.sort(() => Math.random() - 0.5);
     let rolemap = new Map()
@@ -81,7 +94,10 @@ function assignRoles(players,roles) {
     console.log(settings.middle);
 
     for (const [player_id, role] of settings.assigns.entries()) {
-        client.users.cache.get(player_id).send(`hey buddy! Your role is ${role}`);
+        client.users.cache.get(player_id).send(`hey buddy! Your role is ${role[0].toUpperCase()}${role.slice(1,)}`);
+        if (settings.action_roles.includes(role)) {
+            actionsleft++;
+        }
     }
 }
 
@@ -97,37 +113,25 @@ function sendDms(assignmap,mid) {
         else if (role == "seer") {
             seer(player,assignmap,mid);
         }
-    /* 
-        client.users.cache.get(player).send(`:regional_indicator_a: ${settings.players}`);
-        client.users.cache.get(player).send(settings.alerts.get(role));
-        client.users.cache.get(player).send(`:regional_indicator_a: ${settings.players}`)
-        .then(async function (botmessage) {
-            botmessage.react('✅');
-            botmessage.react('🇧');
-            const filter = (reaction, user) => {
-                return reaction.emoji.name==='✅' && user.id ===player;
-            };
-            const collector = botmessage.createReactionCollector(filter, { time: 15000 });
-    
-            collector.on('collect', (reaction, user) => {
-                console.log(`Collected ${reaction.emoji.name} from ${user.tag}`);
-                //do stuff
-            });
-              
-            collector.on('end', collected => {
-                console.log(`Collected ${collected.size} items`);
-            });
-        });
-        // sending mid cards (repurp for players later)
-        for (let i = 0; i<mid.length; i++) {
-            client.users.cache.get(recep).send(`${settings.emoji_middle[i]} ${mid[i]}`);
+        else if (role == "robber") {
+            robber(player,assignmap);
         }
-        */
+        else if (role == "troublemaker") {
+            troublemaker(player,assignmap);
+        }
+        else if (role == "drunk") {
+            drunk(player,mid);
+        }
+        else if (role == "insomniac") {
+            insomniac(player,assignmap);
+        }
+        else if (role == "mason") {
+            mason(player,assignmap);
+        }
     }
 }
 
 // Dm's for each role -- splitting them up b/c easier although longer
-
 
 function werewolf(recep,assignmap,mid) {
     var wolfcount = 0;
@@ -157,7 +161,7 @@ function werewolf(recep,assignmap,mid) {
               
             collector.on('end', collected => {
                 console.log('Lone wolf task completed');
-                return;
+                actionsleft--;
             });
         });
     }
@@ -180,6 +184,7 @@ function minion(recep, assignmap) {
     else {
         client.users.cache.get(recep).send(msg);
     }
+
     console.log('minion task completed');
     return;
 }
@@ -229,8 +234,82 @@ function seer(recep,assignmap,mid) {
           
         collector.on('end', collected => {
             console.log('Seer task completed');
-            return;
+            actionsleft--;
         });
     });
+    return;
+}
+
+function robber(recep,assignmap) {
+    var i=0;
+    var msg=``;
+    for (const [player,role] of assignmap.entries()) {
+        msg+=`${settings.emoji_letters[i]} ${client.users.cache.get(player).username} \n`;
+        i++;
+    }
+    client.users.cache.get(recep).send(msg);
+
+    client.users.cache.get(recep).send("Choose 1 player to rob their role")
+    .then(async function (botmessage) {
+        for (var a=0;a<i;a++) {
+            botmessage.react(settings.emoji_letters[a]);
+        }
+        const filter = (reaction, user) => {
+            return settings.emoji_letters.includes(reaction.emoji.name) && user.id ===recep;
+        };
+        const collector = botmessage.createReactionCollector(filter, {max:1,time: 120000});
+
+        collector.on('collect', (reaction, user) => {
+            const swapped = settings.players[settings.emoji_letters.indexOf(reaction.emoji.name)];
+            settings.swaps.push(["robber",[recep,swapped]]);
+            client.users.cache.get(recep).send(`You swapped with ${client.users.cache.get(swapped).username} and your new role is ${assignmap.get(swapped)}`);
+        });
+          
+        collector.on('end', collected => {
+            console.log('Robber task completed');
+            actionsleft--;
+        });
+    });
+    return;
+}
+function troublemaker(recep,assignmap) {
+    var i=0;
+    var msg=``;
+    for (const [player,role] of assignmap.entries()) {
+        msg+=`${settings.emoji_letters[i]} ${client.users.cache.get(player).username} \n`;
+        i++;
+    }
+    client.users.cache.get(recep).send(msg);
+
+    client.users.cache.get(recep).send("Choose 1 player to rob their role")
+    .then(async function (botmessage) {
+        for (var a=0;a<i;a++) {
+            botmessage.react(settings.emoji_letters[a]);
+        }
+        const filter = (reaction, user) => {
+            return settings.emoji_letters.includes(reaction.emoji.name) && user.id ===recep;
+        };
+        const collector = botmessage.createReactionCollector(filter, {max:1,time: 120000});
+
+        collector.on('collect', (reaction, user) => {
+            const swapped = settings.players[settings.emoji_letters.indexOf(reaction.emoji.name)];
+            settings.swaps.push(["robber",[recep,swapped]]);
+            client.users.cache.get(recep).send(`You swapped with ${client.users.cache.get(swapped).username} and your new role is ${assignmap.get(swapped)}`);
+        });
+          
+        collector.on('end', collected => {
+            console.log('Robber task completed');
+            actionsleft--;
+        });
+    });
+    return;
+}
+function drunk(recep,mid) {
+    return;
+}
+function insomniac(recep,assignmap) {
+    return;
+}
+function mason(recep,assignmap) {
     return;
 }
