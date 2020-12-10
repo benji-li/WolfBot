@@ -281,7 +281,8 @@ function troublemaker(recep,assignmap) {
     }
     client.users.cache.get(recep).send(msg);
 
-    client.users.cache.get(recep).send("Choose 1 player to rob their role")
+    var tswap=[];
+    client.users.cache.get(recep).send("Choose 2 players to swap their roles")
     .then(async function (botmessage) {
         for (var a=0;a<i;a++) {
             botmessage.react(settings.emoji_letters[a]);
@@ -289,27 +290,63 @@ function troublemaker(recep,assignmap) {
         const filter = (reaction, user) => {
             return settings.emoji_letters.includes(reaction.emoji.name) && user.id ===recep;
         };
-        const collector = botmessage.createReactionCollector(filter, {max:1,time: 120000});
+        const collector = botmessage.createReactionCollector(filter, {max:2,time: 120000});
 
         collector.on('collect', (reaction, user) => {
-            const swapped = settings.players[settings.emoji_letters.indexOf(reaction.emoji.name)];
-            settings.swaps.push(["robber",[recep,swapped]]);
-            client.users.cache.get(recep).send(`You swapped with ${client.users.cache.get(swapped).username} and your new role is ${assignmap.get(swapped)}`);
+            tswap.push(settings.players[settings.emoji_letters.indexOf(reaction.emoji.name)]);
         });
           
         collector.on('end', collected => {
-            console.log('Robber task completed');
+            settings.swaps.push(["troublemaker",tswap]);
+            client.users.cache.get(recep).send(`You swapped ${client.users.cache.get(tswap[0]).username} and ${client.users.cache.get(tswap[1]).username}'s roles`);
+
+            console.log('Troublemaker task completed');
             actionsleft--;
         });
     });
     return;
 }
 function drunk(recep,mid) {
+    client.users.cache.get(recep).send("Choose a middle role to swap your role with")
+    .then(async function (botmessage) {
+        for (emoj in settings.emoji_middle) {
+            botmessage.react(settings.emoji_middle[emoj]);
+        }
+        const filter = (reaction, user) => {
+            return settings.emoji_middle.includes(reaction.emoji.name) && user.id ===recep;
+        };
+        const collector = botmessage.createReactionCollector(filter, {max:1, time: 120000});
+
+        collector.on('collect', (reaction, user) => {
+            settings.swaps.push(["drunk",[recep,settings.emoji_middle.indexOf(reaction.emoji.name)]]); //[player_id,int]
+        });
+          
+        collector.on('end', collected => {
+            console.log('Drunk task completed');
+            actionsleft--;
+        });
+    });
     return;
 }
 function insomniac(recep,assignmap) {
     return;
 }
 function mason(recep,assignmap) {
+    var msg = "";
+    var tot = 0;
+    for (var i=0;i<settings.players.length;i++) {
+        if (assignmap.get(settings.players[i])=="mason") {
+            msg += client.users.cache.get(settings.players[i]).username;
+            tot++;
+        }
+    }
+    if (tot==1) {
+        client.users.cache.get(recep).send("You are the only mason!");
+    }
+    else {
+        client.users.cache.get(recep).send(`The masons are ${msg}`);
+    }
+    
+    console.log("Mason task completed");
     return;
 }
