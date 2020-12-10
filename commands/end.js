@@ -14,6 +14,7 @@ module.exports = {
             settings.roles=[];
             settings.assigns.clear();
             settings.middle=[];
+            settings.swaps=[];
         }
         else {
             message.channel.send(`No game to end!`);

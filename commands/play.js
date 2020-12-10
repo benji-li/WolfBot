@@ -8,6 +8,7 @@ module.exports = {
             message.channel.send(`Game has been created by ${message.author.username}\n !join and then !ready to begin.`);
             settings.host = message.author.id;
             settings.players.push(message.author.id);
+            console.log('----------------');
         }
         else {
             message.channel.send('A game is already in session!');

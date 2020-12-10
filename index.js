@@ -76,9 +76,11 @@ function actionsComped(actionsleft) {
     if (actionsleft==0) {
         clearInterval(interval);
         console.log("yep cleared");
-        console.log(settings.swaps);
+        console.log(`Swaps: ${settings.swaps}`);
+        swapRoles(settings.assigns,settings.swaps,settings.middle);
     }
 }
+
 function assignRoles(players,roles) {
     roles.sort(() => Math.random() - 0.5);
     let rolemap = new Map()
@@ -88,10 +90,10 @@ function assignRoles(players,roles) {
     settings.middle = roles.slice(-3);
     settings.assigns = rolemap;
 
-    console.log(roles);
-    console.log(players);
-    console.log(settings.assigns);
-    console.log(settings.middle);
+    console.log(`All roles: ${roles}`);
+    console.log(`All Players: ${players}`);
+    console.log(`Assignments: ${settings.assigns}`);
+    console.log(`Mid: ${settings.middle}`);
 
     for (const [player_id, role] of settings.assigns.entries()) {
         client.users.cache.get(player_id).send(`hey buddy! Your role is ${role[0].toUpperCase()}${role.slice(1,)}`);
@@ -122,15 +124,44 @@ function sendDms(assignmap,mid) {
         else if (role == "drunk") {
             drunk(player,mid);
         }
-        else if (role == "insomniac") {
-            insomniac(player,assignmap);
-        }
         else if (role == "mason") {
             mason(player,assignmap);
         }
     }
 }
 
+function swapRoles(assignmap,swaparray,mid) {
+    for (var i=0; i<settings.swap_order.length;i++) {
+        for (var a=0;a<swaparray.length;a++) {
+            if (swaparray[a][0]==settings.swap_order[i]) {
+                if (settings.swap_order[i]=="robber") {
+                    const r1 = assignmap.get(swaparray[a][1][0]);
+                    const r2 = assignmap.get(swaparray[a][1][1]);
+                    assignmap.set(swaparray[a][1][1],r1);
+                    assignmap.set(swaparray[a][1][0],r2);
+                }
+                else if (settings.swap_order[i]=="troublemaker") {
+                    const t1 = assignmap.get(swaparray[a][1][0]);
+                    const t2 = assignmap.get(swaparray[a][1][1]);
+                    assignmap.set(swaparray[a][1][1],t1);
+                    assignmap.set(swaparray[a][1][0],t2);
+                }
+                else if (settings.swap_order[i]=="drunk") {
+                    const d1 = assignmap.get(swaparray[a][1][0]); //player
+                    const d2 = mid[swaparray[a][1][1]]; //card
+                    mid[swaparray[a][1][1]] = d1;
+                    assignmap.set(swaparray[a][1][0],d2);
+                }
+            }
+        }
+    }
+    for (const [player, role] of assignmap.entries()) {
+        if (role == "insomniac") {
+            insomniac(player,assignmap);
+        }
+    }
+    console.log(`Actions Completed: ${assignmap}`);
+}
 // Dm's for each role -- splitting them up b/c easier although longer
 
 function werewolf(recep,assignmap,mid) {
@@ -329,6 +360,7 @@ function drunk(recep,mid) {
     return;
 }
 function insomniac(recep,assignmap) {
+    client.users.cache.get(recep).send(`After the night, your role is ${assignmap.get(recep)}`);
     return;
 }
 function mason(recep,assignmap) {
@@ -346,7 +378,7 @@ function mason(recep,assignmap) {
     else {
         client.users.cache.get(recep).send(`The masons are ${msg}`);
     }
-    
+
     console.log("Mason task completed");
     return;
 }
