@@ -75,8 +75,8 @@ function gameLoop(channel) {
 function actionsComped(actionsleft) {
     if (actionsleft==0) {
         clearInterval(interval);
-        console.log("yep cleared");
-        console.log(`Swaps: ${settings.swaps}`);
+        console.log(`Swaps:`);
+        console.log(settings.swaps);
         swapRoles(settings.assigns,settings.swaps,settings.middle);
     }
 }
@@ -90,10 +90,15 @@ function assignRoles(players,roles) {
     settings.middle = roles.slice(-3);
     settings.assigns = rolemap;
 
-    console.log(`All roles: ${roles}`);
-    console.log(`All Players: ${players}`);
-    console.log(`Assignments: ${settings.assigns}`);
-    console.log(`Mid: ${settings.middle}`);
+    // splitting up the logs cause i hate how the format gets messed up in ${}
+    console.log(`All roles:`);
+    console.log(roles);
+    console.log(`All Players:`);
+    console.log(players);
+    console.log(`Assignments:`);
+    console.log(settings.assigns);
+    console.log(`Mid:`);
+    console.log(settings.middle);
 
     for (const [player_id, role] of settings.assigns.entries()) {
         client.users.cache.get(player_id).send(`hey buddy! Your role is ${role[0].toUpperCase()}${role.slice(1,)}`);
@@ -160,7 +165,8 @@ function swapRoles(assignmap,swaparray,mid) {
             insomniac(player,assignmap);
         }
     }
-    console.log(`Actions Completed: ${assignmap}`);
+    console.log(`Roles after night:`);
+    console.log(assignmap);
 }
 // Dm's for each role -- splitting them up b/c easier although longer
 
@@ -199,7 +205,6 @@ function werewolf(recep,assignmap,mid) {
     console.log('werewolf task completed');
     return;
 }
-
 function minion(recep, assignmap) {
     var wcount=0;
     msg = "The Werewolves are: ";
@@ -219,7 +224,6 @@ function minion(recep, assignmap) {
     console.log('minion task completed');
     return;
 }
-
 function seer(recep,assignmap,mid) {
     var i=0;
     var msg=``;
@@ -270,7 +274,6 @@ function seer(recep,assignmap,mid) {
     });
     return;
 }
-
 function robber(recep,assignmap) {
     var i=0;
     var msg=``;
