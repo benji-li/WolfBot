@@ -280,11 +280,10 @@ function seer(recep,assignmap,mid) {
         msg+=`${settings.emoji_letters[i]} ${client.users.cache.get(player).username} \n`;
         i++;
     }
-    client.users.cache.get(recep).send(msg);
 
     var porm = 0; //1 = viewing mid - prevent viewing a mid then a player
 
-    client.users.cache.get(recep).send("View 1 player's role OR View 2 center roles")
+    client.users.cache.get(recep).send(`${msg} \n View 1 player's role OR View 2 center roles`)
     .then(async function (botmessage) {
         for (var a=0;a<i;a++) {
             botmessage.react(settings.emoji_letters[a]);
@@ -330,9 +329,8 @@ function robber(recep,assignmap) {
         msg+=`${settings.emoji_letters[i]} ${client.users.cache.get(player).username} \n`;
         i++;
     }
-    client.users.cache.get(recep).send(msg);
 
-    client.users.cache.get(recep).send("Choose 1 player to rob their role")
+    client.users.cache.get(recep).send(`${msg} \n Choose 1 player to rob their role`)
     .then(async function (botmessage) {
         for (var a=0;a<i;a++) {
             botmessage.react(settings.emoji_letters[a]);
@@ -362,10 +360,9 @@ function troublemaker(recep,assignmap) {
         msg+=`${settings.emoji_letters[i]} ${client.users.cache.get(player).username} \n`;
         i++;
     }
-    client.users.cache.get(recep).send(msg);
 
     var tswap=[];
-    client.users.cache.get(recep).send("Choose 2 players to swap their roles")
+    client.users.cache.get(recep).send(`${msg} \n Choose 2 players to swap their roles`)
     .then(async function (botmessage) {
         for (var a=0;a<i;a++) {
             botmessage.react(settings.emoji_letters[a]);
