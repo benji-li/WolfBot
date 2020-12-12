@@ -1,5 +1,6 @@
 module.exports = {
     host: '',
+    host_channel: '',
     insesh: false,
     all_roles: ["werewolf","minion","seer","robber","troublemaker","drunk","insomniac","tanner","villager","mason"],
     action_roles: ["werewolf","seer","robber","troublemaker","drunk"],
@@ -9,7 +10,10 @@ module.exports = {
     roles: [],
     assigns: new Map(),
     middle: [],
-    time: 420,
+    votes: [],
+    time: 40,
+    time_elapsed: 0,
+    alert_times: [180,120,60,30,10,3,2,1],
     emoji_letters: ['🇦','🇧','🇨','🇩','🇪','🇫','🇬','🇭','🇮','🇯','🇰','🇱','🇲','🇳','🇴','🇵','🇶','🇷','🇸','🇹','🇺','🇻','🇼','🇽','🇾','🇿'],
     emoji_middle: ['⬅️','⬆️','➡️'],
 };

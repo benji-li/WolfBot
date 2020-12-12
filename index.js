@@ -77,6 +77,7 @@ function actionsComped(actionsleft) {
         clearInterval(interval);
         console.log(`Swaps:`);
         console.log(settings.swaps);
+        client.channels.cache.get(settings.host_channel).send(`All actions have been completed! You have ${settings.time/60} minutes to discuss...`);
         swapRoles(settings.assigns,settings.swaps,settings.middle);
     }
 }
@@ -160,6 +161,7 @@ function swapRoles(assignmap,swaparray,mid) {
             }
         }
     }
+    // can only do insom role after everyone else
     for (const [player, role] of assignmap.entries()) {
         if (role == "insomniac") {
             insomniac(player,assignmap);
@@ -167,9 +169,56 @@ function swapRoles(assignmap,swaparray,mid) {
     }
     console.log(`Roles after night:`);
     console.log(assignmap);
+
+    interval = setInterval(()=>gameTimer(),1000);
+}
+
+function gameTimer() {
+    settings.time_elapsed++;
+    const time_left = settings.time-settings.time_elapsed;
+    if (settings.alert_times.includes(time_left)) {
+        if (time_left%60==0) {
+            client.channels.cache.get(settings.host_channel).send(`${time_left/60} minutes remaining!`);
+        }
+        else {
+            client.channels.cache.get(settings.host_channel).send(`${time_left} seconds remaining!`);
+        }
+        if (time_left == 30) {
+            for (var i =0;i<settings.players.length;i++) {
+                voteHandler(settings.players[i],settings.assigns);
+            }
+        }
+    }
+}
+
+function voteHandler(recep,assignmap) {
+    var i=0;
+    var msg=``;
+    for (const [player,role] of assignmap.entries()) {
+        if (player == recep) msg+=`${settings.emoji_letters[i]} ${client.users.cache.get(player).username} \n`;
+        i++;
+    }
+    client.users.cache.get(recep).send(`${msg} \n Who do you vote to lynch?`)
+    .then(async function (botmessage) {
+        for (var a=0;a<i;a++) {
+            if (settings.players[a]!=recep) botmessage.react(settings.emoji_letters[a]);
+        }
+        const filter = (reaction, user) => {
+            return settings.emoji_letters.includes(reaction.emoji.name) && user.id ===recep;
+        };
+        const collector = botmessage.createReactionCollector(filter, {max:1,time: 30000});
+
+        collector.on('collect', (reaction, user) => {
+            settings.vote.push(settings.players[settings.emoji_letters.indexOf(reaction.emoji.name)]);
+            console.log(`${client.users.cache.get(recep).username} voted for ${settings.players[settings.emoji_letters.indexOf(reaction.emoji.name)].username}`);
+        });
+          
+        collector.on('end', collected => {
+            console.log(`Vote locked in for ${client.users.cache.get(recep).username}`);
+        });
+    });
 }
 // Dm's for each role -- splitting them up b/c easier although longer
-
 function werewolf(recep,assignmap,mid) {
     var wolfcount = 0;
     var msg = "The Werewolves are: ";

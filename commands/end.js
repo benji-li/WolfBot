@@ -15,6 +15,8 @@ module.exports = {
             settings.assigns.clear();
             settings.middle=[];
             settings.swaps=[];
+            settings.time_elapsed=0;
+            settings.votes=[];
         }
         else {
             message.channel.send(`No game to end!`);
