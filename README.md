@@ -5,7 +5,7 @@
  
  ## Basic Commands
  
- * **!play** creates a new game room (each instance of the bot can only host one game at a time)
+ * **!playwolf** creates a new game room (each instance of the bot can only host one game at a time)
  
  * **!join** joins a player into an existing game room (the game room host is automatically added upon creation and doesn't need this)
  
