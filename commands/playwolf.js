@@ -1,11 +1,11 @@
 const settings = require('../settings');
 module.exports = {
-	name: 'play',
+	name: 'playwolf',
     description: 'creates a new game',
     isGame: false,
 	execute(message) {
         if (this.isGame === false) {
-            message.channel.send(`Game has been created by ${message.author.username}\n !join and then !ready to begin.`);
+            message.channel.send(`Game has been created by ${message.author.username}\n !join to join.`);
             settings.host_channel = message.channel.id;
             settings.host = message.author.id;
             settings.players.push(message.author.id);
