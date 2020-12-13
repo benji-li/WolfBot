@@ -185,8 +185,8 @@ function swapRoles(assignmap,swaparray,mid) {
     
     const interval1 = setInterval(function() {
         gameTimer();
-        if (settings.time_elapsed == settings.time) countVotes();
-        else if (settings.time_elapsed >= settings.time) {
+        if (settings.time_elapsed == settings.time+20) countVotes();
+        else if (settings.time_elapsed >= settings.time+20) {
             clearInterval(interval1);
         }
     },1000);
@@ -195,7 +195,7 @@ function swapRoles(assignmap,swaparray,mid) {
 function gameTimer() {
     settings.time_elapsed++;
     const time_left = settings.time-settings.time_elapsed;
-    if (settings.alert_times.includes(time_left)) {
+    if (settings.alert_times.includes(time_left) && time_left > 0) {
         if (time_left%60==0) {
             client.channels.cache.get(settings.host_channel).send(`${time_left/60} minutes remaining!`);
         }
@@ -225,7 +225,7 @@ function voteHandler(recep,assignmap) {
         const filter = (reaction, user) => {
             return settings.emoji_letters.includes(reaction.emoji.name) && user.id ===recep;
         };
-        const collector = botmessage.createReactionCollector(filter, {max:1,time: 30000});
+        const collector = botmessage.createReactionCollector(filter, {max:1,time: 60000});
 
         collector.on('collect', (reaction, user) => {
             console.log(settings.players[settings.emoji_letters.indexOf(reaction.emoji.name)]);
@@ -252,10 +252,13 @@ function countVotes() {
     console.log(settings.votes);
     console.log(votetally);
     const maxVote = [...votetally.entries()].reduce((a, e ) => e[1] > a[1] ? e : a);
+    var msg='~Final Roles~ \n';
+    for (const [player,role] of settings.assigns.entries()) {
+        msg+=client.users.cache.get(player).username+': '+role+'\n';
+    }
     client.channels.cache.get(settings.host_channel).send("The people have voted to lynch...");
     setTimeout(function() {
-        client.channels.cache.get(settings.host_channel).send(`${client.users.cache.get(maxVote[0]).username}, who was a ${settings.assigns.get(maxVote[0])}`);
-        client.channels.cache.get(settings.host_channel).send(settings.assigns);
+        client.channels.cache.get(settings.host_channel).send(`${client.users.cache.get(maxVote[0]).username}, who was a ${settings.assigns.get(maxVote[0])} \n ${msg}`);
     },5000);
 }
 // Dm's for each role -- splitting them up b/c easier although longer
