@@ -137,6 +137,12 @@ function sendDms(assignmap,mid) {
 }
 
 function swapRoles(assignmap,swaparray,mid) {
+    var insom = '';
+    for (const [player, role] of assignmap.entries()) {
+        if (role == "insomniac") {
+            insom = player;
+        }
+    }
     for (var i=0; i<settings.swap_order.length;i++) {
         for (var a=0;a<swaparray.length;a++) {
             if (swaparray[a][0]==settings.swap_order[i]) {
@@ -162,10 +168,8 @@ function swapRoles(assignmap,swaparray,mid) {
         }
     }
     // can only do insom role after everyone else
-    for (const [player, role] of assignmap.entries()) {
-        if (role == "insomniac") {
-            insomniac(player,assignmap);
-        }
+    if (insom != '') {
+        insomniac(insom,assignmap);
     }
     console.log(`Roles after night:`);
     console.log(assignmap);
