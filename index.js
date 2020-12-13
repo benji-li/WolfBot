@@ -201,13 +201,13 @@ function voteHandler(recep,assignmap) {
     var i=0;
     var msg=``;
     for (const [player,role] of assignmap.entries()) {
-        if (player == recep) msg+=`${settings.emoji_letters[i]} ${client.users.cache.get(player).username} \n`;
+        if (player != recep) msg+=`${settings.emoji_letters[i]} ${client.users.cache.get(player).username} \n`;
         i++;
     }
     client.users.cache.get(recep).send(`${msg} \n Who do you vote to lynch?`)
     .then(async function (botmessage) {
         for (var a=0;a<i;a++) {
-            if (settings.players[a]==recep) botmessage.react(settings.emoji_letters[a]);
+            if (settings.players[a]!=recep) botmessage.react(settings.emoji_letters[a]);
         }
         const filter = (reaction, user) => {
             return settings.emoji_letters.includes(reaction.emoji.name) && user.id ===recep;
@@ -234,9 +234,11 @@ function countVotes() {
     for (var i=0;i<settings.votes.length;i++) {
         votetally.set(settings.players[i],votetally.get(settings.players[i])+1);
     }
+    console.log("Vote Results:");
+    console.log(votetally);
     const maxVote = [...votetally.entries()].reduce((a, e ) => e[1] > a[1] ? e : a);
-    client.channels.cache.get(settings.host_channel).send("The people have chosen to lynch...");
-    setTimeout(()=>client.channels.cache.get(settings.host_channel).send(`${client.users.cache.get(maxVote[0]).username}, who was a ${settings.assigns.get(maxVote[0])}`),3000);
+    client.channels.cache.get(settings.host_channel).send("The people have voted to lynch...");
+    setTimeout(()=>client.channels.cache.get(settings.host_channel).send(`${client.users.cache.get(maxVote[0]).username}, who was a ${settings.assigns.get(maxVote[0])}`),5000);
 }
 // Dm's for each role -- splitting them up b/c easier although longer
 function werewolf(recep,assignmap,mid) {
