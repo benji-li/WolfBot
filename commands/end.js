@@ -1,6 +1,6 @@
 const { middle } = require('../settings');
 const settings = require('../settings');
-const gs = require('./play');
+const gs = require('./playwolf');
 module.exports = {
 	name: 'end',
     description: 'ends an existing game',
