@@ -13,7 +13,7 @@
  
  **!start** begins the game. Note: game roles must be set before this
  
- **!set** followed by **time** or **roles** to set a game length (seconds) or the active roles, respectively
+ **!set** followed by **timer INT_HERE** or **roles** to set a game length (seconds) or the active roles, respectively. Ensure all players are joined before setting roles, since the bot will prompt for roles according to the number of people in the room
  
  ## Roles That Have Been Implemented
  * Werewolf
