@@ -26,11 +26,11 @@ client.on('message', message => {
     if (!client.commands.has(commandName)) return;
 
     const command = client.commands.get(commandName);
-    var gameStatus = client.commands.get('play').isGame;
+    var gameStatus = client.commands.get('playwolf').isGame;
 
     try {
-        if (gameStatus === false && commandName != 'play') {
-            message.channel.send('Please use !play to create a lobby first!');
+        if (gameStatus === false && commandName != 'playwolf') {
+            message.channel.send('Please use !playwolf to create a lobby first!');
         }
         else {
             command.execute(message, args);
@@ -101,6 +101,15 @@ function assignRoles(players,roles) {
     console.log(`Mid:`);
     console.log(settings.middle);
 
+    var wolfcount=0;
+    for (const [player_id, role] of settings.assigns.entries()) {
+        if (role == "werewolf") {
+            wolfcount++;
+        }
+    }
+    if (wolfcount > 1) {
+        actionsleft -= wolfcount;
+    }
     for (const [player_id, role] of settings.assigns.entries()) {
         client.users.cache.get(player_id).send(`hey buddy! Your role is ${role[0].toUpperCase()}${role.slice(1,)}`);
         if (settings.action_roles.includes(role)) {
@@ -236,13 +245,18 @@ function countVotes() {
         votetally.set(settings.players[i],0);
     }
     for (var i=0;i<settings.votes.length;i++) {
-        votetally.set(settings.players[i],votetally.get(settings.players[i])+1);
+        var thevote=votetally.get(settings.votes[i]);
+        votetally.set(settings.votes[i],thevote+1);
     }
     console.log("Vote Results:");
+    console.log(settings.votes);
     console.log(votetally);
     const maxVote = [...votetally.entries()].reduce((a, e ) => e[1] > a[1] ? e : a);
     client.channels.cache.get(settings.host_channel).send("The people have voted to lynch...");
-    setTimeout(()=>client.channels.cache.get(settings.host_channel).send(`${client.users.cache.get(maxVote[0]).username}, who was a ${settings.assigns.get(maxVote[0])}`),5000);
+    setTimeout(function() {
+        client.channels.cache.get(settings.host_channel).send(`${client.users.cache.get(maxVote[0]).username}, who was a ${settings.assigns.get(maxVote[0])}`);
+        client.channels.cache.get(settings.host_channel).send(settings.assigns);
+    },5000);
 }
 // Dm's for each role -- splitting them up b/c easier although longer
 function werewolf(recep,assignmap,mid) {
@@ -251,6 +265,7 @@ function werewolf(recep,assignmap,mid) {
     for (const [player,role] of assignmap.entries()) {
         if (role == "werewolf") {
             msg += client.users.cache.get(player).username;
+            msg += ' ';
             wolfcount++;
         }
     }
@@ -286,6 +301,7 @@ function minion(recep, assignmap) {
     for (const [player,role] of assignmap.entries()) {
         if (role == "werewolf") {
             msg += client.users.cache.get(player).username;
+            msg += ' ';
             wcount++;
         }
     }
