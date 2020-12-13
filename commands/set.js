@@ -7,8 +7,8 @@ module.exports = {
         const collector = message.channel.createMessageCollector(filter);
 
         if (args[0]=='timer') {
-            settings.time = args[1];
-            message.channel.send("Timer successfully set to",args[1]);
+            settings.time = args[1]*60;
+            message.channel.send(`Timer successfully set to ${settings.time} seconds`);
         }
         else if (args[0]=='roles') {
             var counter = 1;
