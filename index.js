@@ -169,8 +169,14 @@ function swapRoles(assignmap,swaparray,mid) {
     }
     console.log(`Roles after night:`);
     console.log(assignmap);
-
-    interval = setInterval(()=>gameTimer(),1000);
+    
+    const interval1 = setInterval(function() {
+        gameTimer();
+        if (settings.time_elapsed == settings.time) countVotes();
+        else if (settings.time_elapsed >= settings.time) {
+            clearInterval(interval1);
+        }
+    },1000);
 }
 
 function gameTimer() {
@@ -201,7 +207,7 @@ function voteHandler(recep,assignmap) {
     client.users.cache.get(recep).send(`${msg} \n Who do you vote to lynch?`)
     .then(async function (botmessage) {
         for (var a=0;a<i;a++) {
-            if (settings.players[a]!=recep) botmessage.react(settings.emoji_letters[a]);
+            if (settings.players[a]==recep) botmessage.react(settings.emoji_letters[a]);
         }
         const filter = (reaction, user) => {
             return settings.emoji_letters.includes(reaction.emoji.name) && user.id ===recep;
@@ -209,14 +215,28 @@ function voteHandler(recep,assignmap) {
         const collector = botmessage.createReactionCollector(filter, {max:1,time: 30000});
 
         collector.on('collect', (reaction, user) => {
-            settings.vote.push(settings.players[settings.emoji_letters.indexOf(reaction.emoji.name)]);
-            console.log(`${client.users.cache.get(recep).username} voted for ${settings.players[settings.emoji_letters.indexOf(reaction.emoji.name)].username}`);
+            console.log(settings.players[settings.emoji_letters.indexOf(reaction.emoji.name)]);
+            settings.votes.push(settings.players[settings.emoji_letters.indexOf(reaction.emoji.name)]);
+            console.log(`${client.users.cache.get(recep).username} voted for ${client.users.cache.get(settings.players[settings.emoji_letters.indexOf(reaction.emoji.name)]).username}`);
         });
           
         collector.on('end', collected => {
             console.log(`Vote locked in for ${client.users.cache.get(recep).username}`);
         });
     });
+}
+
+function countVotes() {
+    var votetally = new Map();
+    for (var i=0;i<settings.players.length;i++) {
+        votetally.set(settings.players[i],0);
+    }
+    for (var i=0;i<settings.votes.length;i++) {
+        votetally.set(settings.players[i],votetally.get(settings.players[i])+1);
+    }
+    const maxVote = [...votetally.entries()].reduce((a, e ) => e[1] > a[1] ? e : a);
+    client.channels.cache.get(settings.host_channel).send("The people have chosen to lynch...");
+    setTimeout(()=>client.channels.cache.get(settings.host_channel).send(`${client.users.cache.get(maxVote[0]).username}, who was a ${settings.assigns.get(maxVote[0])}`),3000);
 }
 // Dm's for each role -- splitting them up b/c easier although longer
 function werewolf(recep,assignmap,mid) {
