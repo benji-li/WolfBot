@@ -1,7 +1,7 @@
 # WolfBot
  Discord bot that lets you play one night ultimate werewolf with your friends!
  
- [Add WolfBot to your server!](https://discord.gg/XCHXhcKb)
+ [Add WolfBot to your server!](https://discord.com/oauth2/authorize?client_id=762002242277474324&scope=bot)
  
  ## Basic Commands
  
