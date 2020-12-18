@@ -9,7 +9,7 @@
  
  * **!join** joins a player into an existing game room (the game room host is automatically added upon creation and doesn't need this)
  
- * **!end** resets and deletes and active game room
+ * **!end** resets and deletes an active game room
  
  * **!start** begins the game. Note: game roles must be set before this
  
